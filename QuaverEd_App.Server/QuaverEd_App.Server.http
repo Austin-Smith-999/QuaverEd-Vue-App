@@ -1,0 +1,6 @@
+@QuaverEd_App.Server_HostAddress = http://localhost:5278
+
+GET {{QuaverEd_App.Server_HostAddress}}/Home
+Accept: text/plain
+
+###
