@@ -68,6 +68,100 @@ using System.Threading.Tasks;
 
 
 
+    private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
+    {
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "CSharpApp");
+
+            var response = await httpClient.GetAsync($"{GitHubApiUrl}?q=language:c#&sort=stars&order=desc&per_page=100");
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var jsonDoc = JsonDocument.Parse(responseBody);
+
+            var items = jsonDoc.RootElement.GetProperty("items");
+            var repositories = new List<Repository>();
+
+            foreach (var item in items.EnumerateArray())
+            {
+                repositories.Add(new Repository
+                {
+                    Id = item.GetProperty("id").GetInt64(),
+                    Name = item.GetProperty("name").GetString(),
+                    OwnerUsername = item.GetProperty("owner").GetProperty("login").GetString(),
+                    Url = item.GetProperty("html_url").GetString(),
+                    CreatedDate = DateTime.Parse(item.GetProperty("created_at").GetString()),
+                    LastPushDate = DateTime.Parse(item.GetProperty("pushed_at").GetString()),
+                    Description = item.GetProperty("description").GetString(),
+                    Stars = item.GetProperty("stars_count").GetInt32()
+                });
+            }
+
+            return repositories;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching GitHub repositories: {ex.Message}");
+            return null;
+        }
+    }
+
+
+
+
+
+    private static void InsertOrUpdateRepositories(List<Repository> repositories)
+    {
+        try
+        {
+            using var connection = new MySqlConnection(MySqlConnectionString);
+            connection.Open();
+
+            string insertUpdateSql = @"INSERT INTO repositories (id, name, owner_username, url, created_date, last_push_date, description, stars)
+                                        VALUES (@id, @name, @owner_username, @url, @created_date, @last_push_date, @description, @stars)
+                                        ON DUPLICATE KEY UPDATE
+                                            name = VALUES(name),
+                                            owner_username = VALUES(owner_username),
+                                            url = VALUES(url),
+                                            created_date = VALUES(created_date),
+                                            last_push_date = VALUES(last_push_date),
+                                            description = VALUES(description),
+                                            stars = VALUES(stars);";
+
+            using var command = new MySqlCommand(insertUpdateSql, connection);
+
+            foreach (var repo in repositories)
+            {
+                command.Parameters.Clear();
+
+                command.Parameters.AddWithValue("@id", repo.Id);
+                command.Parameters.AddWithValue("@name", repo.Name);
+                command.Parameters.AddWithValue("@owner_username", repo.OwnerUsername);
+                command.Parameters.AddWithValue("@url", repo.Url);
+                command.Parameters.AddWithValue("@created_date", repo.CreatedDate);
+                command.Parameters.AddWithValue("@last_push_date", repo.LastPushDate);
+                command.Parameters.AddWithValue("@description", repo.Description);
+                command.Parameters.AddWithValue("@stars", repo.Stars);
+
+                command.ExecuteNonQuery();
+            }
+
+            Console.WriteLine("Repositories inserted/updated successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Database error: {ex.Message}");
+        }
+    }
+
+
+
+
+
+
 
 
 
@@ -76,8 +170,6 @@ using System.Threading.Tasks;
 
 
     }
-
-
 
     
 }
