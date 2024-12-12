@@ -32,7 +32,39 @@ using System.Threading.Tasks;
         }
     }
 
+    private static async Task CreateDatabaseAndTableAsync()
+    {
+        try
+        {
+            using var connection = new MySqlConnection("Server=localhost;User ID=root;Password=password;");
+            await connection.OpenAsync();
 
+            using var createDbCommand = new MySqlCommand("CREATE DATABASE IF NOT EXISTS github_repos;", connection);
+            await createDbCommand.ExecuteNonQueryAsync();
+
+            connection.ChangeDatabase("github_repos");
+
+            string createTableSql = @"CREATE TABLE IF NOT EXISTS repositories (
+                id BIGINT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                owner_username VARCHAR(255) NOT NULL,
+                url VARCHAR(255) NOT NULL,
+                created_date DATETIME NOT NULL,
+                last_push_date DATETIME NOT NULL,
+                description TEXT,
+                stars INT NOT NULL
+            );";
+
+            using var createTableCommand = new MySqlCommand(createTableSql, connection);
+            await createTableCommand.ExecuteNonQueryAsync();
+
+            Console.WriteLine("Database and table are ready.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
 
 
 
