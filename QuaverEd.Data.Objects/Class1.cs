@@ -158,7 +158,17 @@ using System.Threading.Tasks;
     }
 
 
-
+    private class Repository
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public string OwnerUsername { get; set; }
+        public string Url { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime LastPushDate { get; set; }
+        public string Description { get; set; }
+        public int Stars { get; set; }
+    }
 
 
 
