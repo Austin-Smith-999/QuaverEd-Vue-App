@@ -4,6 +4,9 @@ import './assets/bootstrap/bootstrap-grid.css'
 import './assets/bootstrap/bootstrap-reboot.css'
 import './assets/bootstrap/bootstrap-utilities.css'
 
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap"
+
 import { createApp } from 'vue'
 import App from './App.vue'
 

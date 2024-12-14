@@ -68,47 +68,92 @@ using System.Threading.Tasks;
 
 
 
-    private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
+    // private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
+    // {
+    //     try
+    //     {
+    //         using var httpClient = new HttpClient();
+    //         httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+    //         httpClient.DefaultRequestHeaders.Add("User-Agent", "CSharpApp");
+
+    //         var response = await httpClient.GetAsync($"{GitHubApiUrl}?q=language:c#&sort=stars&order=desc&per_page=100");
+    //         response.EnsureSuccessStatusCode();
+
+    //         var responseBody = await response.Content.ReadAsStringAsync();
+    //         var jsonDoc = JsonDocument.Parse(responseBody);
+
+    //         var items = jsonDoc.RootElement.GetProperty("items");
+    //         var repositories = new List<Repository>();
+
+    //         foreach (var item in items.EnumerateArray())
+    //         {
+    //             repositories.Add(new Repository
+    //             {
+    //                 Id = item.GetProperty("id").GetInt64(),
+    //                 Name = item.GetProperty("name").GetString(),
+    //                 OwnerUsername = item.GetProperty("owner").GetProperty("login").GetString(),
+    //                 Url = item.GetProperty("html_url").GetString(),
+    //                 CreatedDate = DateTime.Parse(item.GetProperty("created_at").GetString()),
+    //                 LastPushDate = DateTime.Parse(item.GetProperty("pushed_at").GetString()),
+    //                 Description = item.GetProperty("description").GetString(),
+    //                 Stars = item.GetProperty("stargazers_url").GetInt32()
+    //             });
+    //         }
+
+    //         return repositories;
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine($"Error fetching GitHub repositories: {ex.Message}");
+    //         return null;
+    //     }
+    // }
+
+
+private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
+{
+    try
     {
-        try
+        using var httpClient = new HttpClient();
+        httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+        httpClient.DefaultRequestHeaders.Add("User-Agent", "CSharpApp");
+
+        // Add GitHub Personal Access Token
+        const string githubToken = "your_personal_access_token_here";
+        httpClient.DefaultRequestHeaders.Add("Authorization", $"token {githubToken}");
+
+        var response = await httpClient.GetAsync($"{GitHubApiUrl}?q=language:c#&sort=stars&order=desc&per_page=100");
+        response.EnsureSuccessStatusCode();
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var jsonDoc = JsonDocument.Parse(responseBody);
+
+        var items = jsonDoc.RootElement.GetProperty("items");
+        var repositories = new List<Repository>();
+
+        foreach (var item in items.EnumerateArray())
         {
-            using var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "CSharpApp");
-
-            var response = await httpClient.GetAsync($"{GitHubApiUrl}?q=language:c#&sort=stars&order=desc&per_page=100");
-            response.EnsureSuccessStatusCode();
-
-            var responseBody = await response.Content.ReadAsStringAsync();
-            var jsonDoc = JsonDocument.Parse(responseBody);
-
-            var items = jsonDoc.RootElement.GetProperty("items");
-            var repositories = new List<Repository>();
-
-            foreach (var item in items.EnumerateArray())
+            repositories.Add(new Repository
             {
-                repositories.Add(new Repository
-                {
-                    Id = item.GetProperty("id").GetInt64(),
-                    Name = item.GetProperty("name").GetString(),
-                    OwnerUsername = item.GetProperty("owner").GetProperty("login").GetString(),
-                    Url = item.GetProperty("html_url").GetString(),
-                    CreatedDate = DateTime.Parse(item.GetProperty("created_at").GetString()),
-                    LastPushDate = DateTime.Parse(item.GetProperty("pushed_at").GetString()),
-                    Description = item.GetProperty("description").GetString(),
-                    Stars = item.GetProperty("stars_count").GetInt32()
-                });
-            }
+                Id = item.GetProperty("id").GetInt64(),
+                Name = item.GetProperty("name").GetString(),
+                OwnerUsername = item.GetProperty("owner").GetProperty("login").GetString(),
+                Url = item.GetProperty("html_url").GetString(),
+                CreatedDate = DateTime.Parse(item.GetProperty("created_at").GetString()),
+                LastPushDate = DateTime.Parse(item.GetProperty("pushed_at").GetString()),
+                Description = item.GetProperty("description").GetString(),
+                Stars = item.GetProperty("stargazers_count").GetInt32()
+            });
+        }
 
-            return repositories;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error fetching GitHub repositories: {ex.Message}");
-            return null;
-        }
+        return repositories;
     }
-
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error fetching GitHub repositories: {ex.Message}");
+        return null;
+    }
+}
 
 
 
@@ -120,6 +165,7 @@ using System.Threading.Tasks;
             using var connection = new MySqlConnection(MySqlConnectionString);
             connection.Open();
 
+            // probably should match above
             string insertUpdateSql = @"INSERT INTO repositories (id, name, owner_username, url, created_date, last_push_date, description, stars)
                                         VALUES (@id, @name, @owner_username, @url, @created_date, @last_push_date, @description, @stars)
                                         ON DUPLICATE KEY UPDATE

@@ -3,6 +3,10 @@
     <div class="mx-auto">
       <img alt="Q logo" src="./icons/Q_Icon.png" class="align-middle rotate" />
       <div class="fs-5 font-monospace text-center"> QuaverEd, Inc. </div>
+
+
+
+      
     </div>
     <div v-if="post" class="content">
       <table>
