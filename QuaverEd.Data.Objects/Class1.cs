@@ -8,10 +8,12 @@
 
 namespace QuaverEd.Data.Objects
 {
-using System;
+    using Microsoft.Extensions.Configuration;
+    using MySql.Data.MySqlClient;
+    using System;
 using System.Collections.Generic;
-using System.Data;
-using MySql.Data.MySqlClient;
+//using System.Data;
+//using MySql.Data.MySqlClient;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -109,17 +111,75 @@ using System.Threading.Tasks;
     //     }
     // }
 
+// 2nd attempt with method
+// private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
+// {
+//     try
+//     {
+//         using var httpClient = new HttpClient();
+//         httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+//         httpClient.DefaultRequestHeaders.Add("User-Agent", "CSharpApp");
+
+//         // Add GitHub Personal Access Token
+//         const string githubToken = "your_personal_access_token_here";
+//         httpClient.DefaultRequestHeaders.Add("Authorization", $"token {githubToken}");
+
+//         var response = await httpClient.GetAsync($"{GitHubApiUrl}?q=language:c#&sort=stars&order=desc&per_page=100");
+//         response.EnsureSuccessStatusCode();
+
+//         var responseBody = await response.Content.ReadAsStringAsync();
+//         var jsonDoc = JsonDocument.Parse(responseBody);
+
+//         var items = jsonDoc.RootElement.GetProperty("items");
+//         var repositories = new List<Repository>();
+
+//         foreach (var item in items.EnumerateArray())
+//         {
+//             repositories.Add(new Repository
+//             {
+//                 Id = item.GetProperty("id").GetInt64(),
+//                 Name = item.GetProperty("name").GetString(),
+//                 OwnerUsername = item.GetProperty("owner").GetProperty("login").GetString(),
+//                 Url = item.GetProperty("html_url").GetString(),
+//                 CreatedDate = DateTime.Parse(item.GetProperty("created_at").GetString()),
+//                 LastPushDate = DateTime.Parse(item.GetProperty("pushed_at").GetString()),
+//                 Description = item.GetProperty("description").GetString(),
+//                 Stars = item.GetProperty("stargazers_count").GetInt32()
+//             });
+//         }
+
+//         return repositories;
+//     }
+//     catch (Exception ex)
+//     {
+//         Console.WriteLine($"Error fetching GitHub repositories: {ex.Message}");
+//         return null;
+//     }
+// }
+
+
+
 
 private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
 {
     try
     {
+        // Load the ApiToken from appsettings.json
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json",
+                         optional: false,
+                         reloadOnChange: true)
+            .Build();
+
+        string githubToken = configuration["GitHub:ApiToken"];
+        if (string.IsNullOrEmpty(githubToken))
+        {
+            throw new Exception("GitHub API token is not configured in appsettings.json.");
+        }
+
         using var httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
         httpClient.DefaultRequestHeaders.Add("User-Agent", "CSharpApp");
-
-        // Add GitHub Personal Access Token
-        const string githubToken = "your_personal_access_token_here";
         httpClient.DefaultRequestHeaders.Add("Authorization", $"token {githubToken}");
 
         var response = await httpClient.GetAsync($"{GitHubApiUrl}?q=language:c#&sort=stars&order=desc&per_page=100");
@@ -154,6 +214,7 @@ private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
         return null;
     }
 }
+
 
 
 
