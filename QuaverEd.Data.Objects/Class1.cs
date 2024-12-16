@@ -265,7 +265,8 @@ private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
     }
 
 
-    private class Repository
+    // private class Repository // original
+    public class Repository
     {
         public long Id { get; set; }
         public string Name { get; set; }
