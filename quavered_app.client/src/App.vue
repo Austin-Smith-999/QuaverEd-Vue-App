@@ -1,13 +1,23 @@
-<!-- <script setup>
+<script setup>
   import Home from './components/HomePage.vue'
 </script>
 <template>
   <home />
-</template> -->
+</template>
+
+
+
+
+
+
+
+
+
+
 
 
 <!--  -->
-<template>
+<!-- <template>
   <div class="container mt-5">
     <h1 class="text-center mb-4">GitHub Repositories</h1>
     <div class="row">
@@ -30,10 +40,10 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Modal for details -->
-    <div
+    <!-- <div
       class="modal fade"
       id="detailsModal"
       tabindex="-1"
@@ -63,9 +73,9 @@
       </div>
     </div>
   </div>
-</template>
+</template> -->
 
-<script>
+<!-- <script>
 import axios from "axios";
 
 export default {
@@ -100,4 +110,83 @@ export default {
 
 <style>
 /* Optional: Add custom styling */
+</style> -->
+
+
+
+
+<!-- 
+
+<template>
+  <div class="d-flex align-items-center vh-100">
+    <div class="mx-auto">
+      <img alt="Q logo" src="./icons/Q_Icon.png" class="align-middle rotate" />
+      <div class="fs-5 font-monospace text-center"> QuaverEd, Inc. </div>
+    </div>
+    <div v-if="repositories.length > 0" class="content">
+      <table>
+        <thead>
+          <tr>
+            <th>Repository Name</th>
+            <th>Description</th>
+            <th>Stars</th>
+            <th>Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="repo in repositories" :key="repo.id">
+            <td>{{ repo.name }}</td>
+            <td>{{ repo.description }}</td>
+            <td>{{ repo.stars }}</td>
+            <td>{{ repo.ownerUsername }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<style>
+.rotate {
+  animation: rotation 3s linear infinite;
+}
+@keyframes rotation {
+  from {
+    transform: rotate3d(0, 1, 0, 0deg);
+  }
+  to {
+    transform: rotate3d(0, 1, 0, 360deg);
+  }
+}
 </style>
+
+
+
+
+
+
+<script>
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      repositories: []
+    };
+  },
+  methods: {
+    async fetchRepositories() {
+      try {
+        // const response = await axios.get("http://localhost:5001/home/repositories"); //original
+        const response = await axios.get("http://localhost:5278/home/repositories");
+        this.repositories = response.data;
+      } catch (error) {
+        console.error("Error fetching repositories:", error);
+      }
+    }
+  },
+  mounted() {
+    this.fetchRepositories();
+  }
+};
+</script> -->

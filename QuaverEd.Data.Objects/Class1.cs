@@ -6,6 +6,12 @@
 //     }
 // }
 
+
+
+
+
+
+
 namespace QuaverEd.Data.Objects
 {
     using Microsoft.Extensions.Configuration;
@@ -20,6 +26,9 @@ using System.Threading.Tasks;
 
     public class Class1
     {
+        //private const string GitHubApiUrl = "https://api.github.com/search/repositories";
+        //private const string MySqlConnectionString = "Server=localhost;User ID=root;Password=password;Database=github_repos;";
+
         private const string GitHubApiUrl = "https://api.github.com/search/repositories";
         private const string MySqlConnectionString = "Server=localhost;User ID=root;Password=password;Database=github_repos;";
 
@@ -160,8 +169,9 @@ using System.Threading.Tasks;
 
 
 
-private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
-{
+//private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
+public static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
+        {
     try
     {
         // Load the ApiToken from appsettings.json
@@ -219,7 +229,7 @@ private static async Task<List<Repository>> FetchGitHubRepositoriesAsync()
 
 
 
-    private static void InsertOrUpdateRepositories(List<Repository> repositories)
+    public static void InsertOrUpdateRepositories(List<Repository> repositories)
     {
         try
         {

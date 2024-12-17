@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\QuaverEd.Data.Objects\QuaverEd.Data.Objects.csproj" />
     <ProjectReference Include="..\quavered_app.client\quavered_app.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
